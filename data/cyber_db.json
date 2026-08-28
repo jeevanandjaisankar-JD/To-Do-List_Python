@@ -1,0 +1,22 @@
+{
+  "player": {
+    "level": 2,
+    "xp": 45,
+    "credits": 200,
+    "streak": 2,
+    "soundMuted": false,
+    "theme": "void"
+  },
+  "tasks": [
+    {
+      "id": "t-test",
+      "title": "Test Task",
+      "tier": "s",
+      "completed": true,
+      "subtasks": []
+    }
+  ],
+  "bosses": [],
+  "rewards": [],
+  "redemptionHistory": []
+}

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBERQUEST 2099 // Quantum Focus & Task Protocol</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body data-theme="cyber">
+    <!-- Background Particle Canvas & Scanline FX -->
+    <canvas id="bg-canvas"></canvas>
+    <div class="scanline-overlay"></div>
+
+    <div class="cyber-app" id="app">
+        <!-- Futuristic HUD Top Bar -->
+        <header class="hud-header">
+            <div class="brand-section">
+                <div class="brand-logo">⚡</div>
+                <div class="brand-info">
+                    <h1>CYBERQUEST <span>2099</span></h1>
+                    <span>SYSTEM STATUS: OPTIMAL // SYNAPSE v3.4</span>
+                </div>
+            </div>
+
+            <!-- Player Level, XP & Currency Status -->
+            <div class="hud-player-stats">
+                <div class="player-level-badge">
+                    <div class="level-number" id="player-level">LVL 1</div>
+                    <div class="level-meta">
+                        <span class="rank-title" id="player-rank">CYBER NOVICE</span>
+                        <div class="xp-bar-container">
+                            <div class="xp-bar-fill" id="xp-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <span class="xp-text" id="xp-text">0 / 100 XP</span>
+                    </div>
+                </div>
+
+                <div class="stat-pill credits" title="Quantum Credits ($QC) - Spend in the Cyber Market">
+                    <span>💎</span>
+                    <span id="player-credits">100 QC</span>
+                </div>
+
+                <div class="stat-pill streak" title="Active Focus Streak">
+                    <span class="flame-icon">🔥</span>
+                    <span id="player-streak">0 STREAK</span>
+                    <span id="streak-multiplier" style="font-size:0.75rem; color:#fff; margin-left:4px; opacity:0.8;">1.0x</span>
+                </div>
+            </div>
+
+            <!-- HUD Quick Controls -->
+            <div class="hud-actions">
+                <button class="hud-btn" id="btn-sound-toggle" title="Toggle SFX">
+                    <span id="sound-icon">🔊</span>
+                </button>
+                <select class="hud-select" id="theme-selector" title="HUD Visual Theme">
+                    <option value="cyber">HUD: Neon Cyber</option>
+                    <option value="synthwave">HUD: Synthwave '84</option>
+                    <option value="matrix">HUD: Matrix Terminal</option>
+                    <option value="solar">HUD: Solar Flare</option>
+                    <option value="void">HUD: Void Nebula</option>
+                </select>
+                <button class="hud-btn" id="btn-cmd-palette" title="Command Palette (Ctrl + K)">
+                    <span>⌘K</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="cyber-tabs">
+            <button class="tab-btn active" data-tab="tasks">
+                <span>📋</span> TASK MATRIX
+            </button>
+            <button class="tab-btn" data-tab="bosses">
+                <span>👾</span> BOSS RAIDS <span id="active-boss-indicator" style="display:none; color:var(--secondary); font-size:10px;">● ACTIVE</span>
+            </button>
+            <button class="tab-btn" data-tab="pomodoro">
+                <span>⚛️</span> QUANTUM REACTOR
+            </button>
+            <button class="tab-btn" data-tab="rewards">
+                <span>🛒</span> CYBER MARKET
+            </button>
+            <button class="tab-btn" data-tab="intel">
+                <span>📊</span> TACTICAL INTEL
+            </button>
+        </nav>
+
+        <!-- TAB 1: TASK MATRIX -->
+        <main class="tab-content" id="tab-tasks">
+            <div class="main-grid">
+                <div class="grid-left">
+                    <!-- Task Creator Card -->
+                    <div class="task-creator-box">
+                        <div class="creator-row">
+                            <input type="text" id="task-input" class="cyber-input" placeholder="Enter tactical objective or mission query..." autocomplete="off">
+                            <button class="btn-cyber-primary" id="btn-add-task">
+                                <span>➕</span> INITIALIZE
+                            </button>
+                        </div>
+                        <div class="creator-options">
+                            <div class="option-group">
+                                <span style="font-size:0.8rem; color:var(--text-muted);">PRIORITY:</span>
+                                <div class="tier-select">
+                                    <button class="tier-btn s-tier" data-tier="s" title="Tier S (Critical Mission) - 100 XP / 40 QC">S</button>
+                                    <button class="tier-btn a-tier" data-tier="a" title="Tier A (High Impact) - 60 XP / 25 QC">A</button>
+                                    <button class="tier-btn b-tier active" data-tier="b" title="Tier B (Standard) - 35 XP / 15 QC">B</button>
+                                    <button class="tier-btn c-tier" data-tier="c" title="Tier C (Side Quest) - 20 XP / 10 QC">C</button>
+                                </div>
+                            </div>
+                            <div class="option-group">
+                                <span style="font-size:0.8rem; color:var(--text-muted);">TAG:</span>
+                                <input type="text" id="task-tag-input" class="cyber-input" style="width:110px; padding:4px 8px; font-size:0.85rem;" placeholder="#tag">
+                            </div>
+                            <div class="option-group">
+                                <button class="btn-cyber-ai" id="btn-ai-decompose" title="Let N.E.O. break down this task into sub-quests">
+                                    <span>⚡</span> N.E.O. DECOMPOSE
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters & Matrix View -->
+                    <div class="matrix-filters">
+                        <div class="filter-pills">
+                            <button class="filter-pill active" data-filter="all">ALL OBJECTIVES</button>
+                            <button class="filter-pill" data-filter="active">ACTIVE</button>
+                            <button class="filter-pill" data-filter="completed">COMPLETED</button>
+                            <button class="filter-pill" data-filter="tier-s">TIER S</button>
+                            <button class="filter-pill" data-filter="tier-a">TIER A</button>
+                        </div>
+                        <input type="text" id="task-search-input" class="cyber-input" style="width:160px; padding:4px 10px; font-size:0.85rem;" placeholder="🔍 Filter...">
+                    </div>
+
+                    <!-- Task Cards Container -->
+                    <div class="task-list" id="task-list-container">
+                        <!-- Dynamic task items inserted here -->
+                    </div>
+                </div>
+
+                <!-- Right Side Widget: Mini Reactor & Quick Stats -->
+                <div class="grid-right">
+                    <div class="cyber-card">
+                        <div class="cyber-card-header">
+                            <span class="card-title"><span class="icon">⚛️</span> QUANTUM FOCUS</span>
+                            <span id="mini-pomodoro-status" style="font-family:var(--font-mono); font-size:0.75rem; color:var(--primary);">READY</span>
+                        </div>
+                        <div style="text-align:center; padding:10px 0;">
+                            <div id="mini-timer-display" style="font-family:var(--font-cyber); font-size:2.4rem; color:#fff; text-shadow:0 0 10px var(--primary-glow);">25:00</div>
+                            <div style="margin-top:10px; display:flex; justify-content:center; gap:8px;">
+                                <button class="btn-cyber-primary" id="mini-btn-timer" style="padding:6px 16px; font-size:0.85rem;">START FOCUS</button>
+                                <button class="hud-btn" id="mini-btn-reset" style="padding:6px 10px;">↺</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cyber-card" style="margin-top:16px;">
+                        <div class="cyber-card-header">
+                            <span class="card-title"><span class="icon">🎯</span> DAILY QUESTS</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:10px; font-size:0.88rem;">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <span>Complete 3 Tasks</span>
+                                <span id="quest-tasks-progress" style="color:var(--primary); font-family:var(--font-mono);">0/3</span>
+                            </div>
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <span>Run 2 Focus Cycles</span>
+                                <span id="quest-focus-progress" style="color:var(--primary); font-family:var(--font-mono);">0/2</span>
+                            </div>
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <span>Defeat or Hit a Boss</span>
+                                <span id="quest-boss-progress" style="color:var(--secondary); font-family:var(--font-mono);">0/1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- TAB 2: BOSS RAIDS -->
+        <main class="tab-content" id="tab-bosses" style="display:none;">
+            <div class="main-grid">
+                <div class="grid-left">
+                    <!-- Boss Arena -->
+                    <div id="active-boss-arena">
+                        <!-- Active boss card dynamically rendered -->
+                    </div>
+
+                    <div style="margin-top:24px;">
+                        <div class="cyber-card-header">
+                            <span class="card-title"><span class="icon">🏆</span> DEFEATED TITANS HALL OF FAME</span>
+                        </div>
+                        <div id="defeated-bosses-list" style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+                            <!-- Defeated bosses list -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-right">
+                    <!-- Create Boss Form -->
+                    <div class="cyber-card">
+                        <div class="cyber-card-header">
+                            <span class="card-title"><span class="icon">👾</span> SUMMON RAID BOSS</span>
+                        </div>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">
+                            Transform a huge task, project, or exam into an epic Cyber Titan with an interactive HP bar and critical strike sub-tasks!
+                        </p>
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <input type="text" id="boss-name-input" class="cyber-input" placeholder="Boss Name (e.g. Master React Engine)">
+                            <select id="boss-avatar-select" class="cyber-input">
+                                <option value="🤖">🤖 MECHA CYGNI</option>
+                                <option value="🐲">🐲 QUANTUM DRAGON</option>
+                                <option value="💀">💀 PROTOCOL REAPER</option>
+                                <option value="👾">👾 GLITCH TITAN</option>
+                                <option value="🛸">🛸 VOID OVERLORD</option>
+                            </select>
+                            <input type="number" id="boss-hp-input" class="cyber-input" placeholder="Boss HP (e.g. 300)" value="300" min="100" max="2000">
+                            <textarea id="boss-subtasks-input" class="cyber-input" style="height:90px; resize:none;" placeholder="Subtasks (1 per line):&#10;Study Chapter 1&#10;Write 50 tests&#10;Refactor Code"></textarea>
+                            <button class="btn-cyber-primary" id="btn-create-boss" style="width:100%; justify-content:center;">
+                                ⚡ SUMMON TITAN
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- TAB 3: QUANTUM POMODORO REACTOR -->
+        <main class="tab-content" id="tab-pomodoro" style="display:none;">
+            <div style="max-width:680px; margin:0 auto;">
+                <div class="cyber-card pomodoro-panel">
+                    <div class="reactor-modes">
+                        <button class="mode-btn active" data-mode="focus">QUANTUM FOCUS (25m)</button>
+                        <button class="mode-btn" data-mode="short">SHORT REFRESH (5m)</button>
+                        <button class="mode-btn" data-mode="long">LONG CALIBRATION (15m)</button>
+                    </div>
+
+                    <!-- SVG Circular Animated Dial -->
+                    <div class="timer-gauge-wrapper">
+                        <svg class="timer-svg" viewBox="0 0 240 240">
+                            <circle class="timer-circle-bg" cx="120" cy="120" r="105"></circle>
+                            <circle class="timer-circle-progress" id="timer-progress-ring" cx="120" cy="120" r="105"></circle>
+                        </svg>
+                        <div class="timer-display">
+                            <div class="timer-digits" id="pomo-digits">25:00</div>
+                            <div class="timer-status-text" id="pomo-status-text">SYSTEM STANDBY</div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="timer-controls">
+                        <button class="btn-timer-primary" id="pomo-btn-main">INITIALIZE FOCUS</button>
+                        <button class="btn-timer-secondary" id="pomo-btn-reset" title="Reset Reactor">↺</button>
+                        <button class="btn-timer-secondary" id="pomo-btn-skip" title="Skip Phase">⏭</button>
+                    </div>
+
+                    <!-- Overdrive High-Intensity Toggle -->
+                    <div class="overdrive-bar" id="overdrive-toggle-bar">
+                        <div>
+                            <span style="font-weight:700; color:var(--primary);">⚡ OVERDRIVE BLITZ:</span>
+                            <span style="color:var(--text-muted); font-size:0.8rem; margin-left:6px;">Screen edge pulse & hyper-focus immersion</span>
+                        </div>
+                        <button class="hud-btn" id="btn-toggle-overdrive" style="padding:4px 10px; font-size:0.75rem;">OFF</button>
+                    </div>
+
+                    <!-- Ambient Audio Synthesizer Deck -->
+                    <div class="ambience-deck">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span>🎧</span>
+                            <span style="font-size:0.85rem; font-weight:700;">FOCUS AMBIENCE:</span>
+                        </div>
+                        <select class="hud-select" id="ambience-select">
+                            <option value="none">Muted / Silence</option>
+                            <option value="gamma">⚛️ 40Hz Gamma Focus Waves</option>
+                            <option value="rain">🌧️ Cyber City Rain</option>
+                            <option value="warp">🚀 Warp Core Engine Drone</option>
+                            <option value="orbit">🌌 Deep Space Orbit Pad</option>
+                        </select>
+                    </div>
+
+                    <!-- Micro-Break Holo-Breather Visualizer -->
+                    <div class="holo-breather-box" id="holo-breather">
+                        <span style="font-family:var(--font-cyber); font-size:0.9rem; color:var(--primary);">HOLOGRAPHIC BIO-BREATHER</span>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;" id="breather-instruction">Inhale deeply as the orb expands...</p>
+                        <div class="breathing-orb"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- TAB 4: CYBER MARKET (REWARD SHOP) -->
+        <main class="tab-content" id="tab-rewards" style="display:none;">
+            <div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h2 style="font-family:var(--font-cyber); color:#fff; font-size:1.4rem;">CYBER BLACK MARKET</h2>
+                    <p style="color:var(--text-muted); font-size:0.88rem;">Spend your earned Quantum Credits ($QC) on digital augments or custom real-world rewards!</p>
+                </div>
+                <button class="btn-cyber-primary" id="btn-open-custom-reward-modal">
+                    <span>➕</span> CREATE REAL REWARD
+                </button>
+            </div>
+
+            <div class="reward-grid" id="rewards-container">
+                <!-- Rewards dynamically rendered -->
+            </div>
+
+            <!-- Redemption Log -->
+            <div class="cyber-card" style="margin-top:28px;">
+                <div class="cyber-card-header">
+                    <span class="card-title"><span class="icon">📜</span> REDEMPTION LOG & INVENTORY</span>
+                </div>
+                <div id="redemption-history" style="display:flex; flex-direction:column; gap:8px;">
+                    <!-- Logs -->
+                </div>
+            </div>
+        </main>
+
+        <!-- TAB 5: TACTICAL INTEL & VAULT -->
+        <main class="tab-content" id="tab-intel" style="display:none;">
+            <!-- Analytics Grid -->
+            <div class="analytics-grid">
+                <div class="stat-box">
+                    <div class="val" id="stat-total-tasks">0</div>
+                    <div class="lbl">Tasks Completed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val" id="stat-focus-time">0m</div>
+                    <div class="lbl">Total Focus Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val" id="stat-bosses-slain">0</div>
+                    <div class="lbl">Titans Defeated</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val" id="stat-max-streak">0</div>
+                    <div class="lbl">Max Streak</div>
+                </div>
+            </div>
+
+            <!-- AI Tactical Debrief Box -->
+            <div class="ai-debrief-box" style="margin-bottom:24px;">
+                <div class="ai-debrief-header">
+                    <span>⚡ N.E.O. TACTICAL DEBRIEF</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;" id="debrief-timestamp"></span>
+                </div>
+                <p id="ai-debrief-text">
+                    Initializing neural tactical scan... Execute focus protocols and eliminate task targets to calibrate productivity quotient.
+                </p>
+            </div>
+
+            <!-- Achievements Vault -->
+            <div class="cyber-card">
+                <div class="cyber-card-header">
+                    <span class="card-title"><span class="icon">🎖️</span> ACHIEVEMENTS VAULT</span>
+                    <span id="achievements-count" style="font-family:var(--font-mono); font-size:0.85rem; color:var(--primary);">0 / 12 UNLOCKED</span>
+                </div>
+                <div class="achievements-grid" id="achievements-container">
+                    <!-- Achievements dynamically rendered -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: Command Palette (Ctrl+K) -->
+    <div class="modal-overlay" id="cmd-modal">
+        <div class="modal-card command-palette">
+            <div class="cmd-search-bar">
+                <span>⚡</span>
+                <input type="text" id="cmd-search-input" class="cmd-input" placeholder="Type a command, task, or shortcut...">
+            </div>
+            <div class="cmd-results" id="cmd-results-list">
+                <!-- Command items -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Custom Real-World Reward Creator -->
+    <div class="modal-overlay" id="custom-reward-modal">
+        <div class="modal-card">
+            <div class="cyber-card-header">
+                <span class="card-title">🎁 CREATE CUSTOM REWARD</span>
+                <button class="action-icon-btn" id="btn-close-reward-modal">✕</button>
+            </div>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">
+                Give yourself guilt-free real-world treats redeemable only by staying productive!
+            </p>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <input type="text" id="custom-reward-title" class="cyber-input" placeholder="Reward Title (e.g. 1hr Video Game Session)">
+                <input type="text" id="custom-reward-desc" class="cyber-input" placeholder="Description (e.g. Play Elden Ring guilt-free)">
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="custom-reward-cost" class="cyber-input" placeholder="Cost ($QC)" value="150" min="20">
+                    <input type="text" id="custom-reward-icon" class="cyber-input" style="width:80px;" placeholder="Icon" value="🎮">
+                </div>
+                <button class="btn-cyber-primary" id="btn-save-custom-reward" style="justify-content:center; margin-top:8px;">
+                    SAVE REWARD TO MARKET
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Level Up Celebration Hologram -->
+    <div class="modal-overlay" id="level-up-modal">
+        <div class="modal-card" style="text-align:center;">
+            <div style="font-size:48px; margin-bottom:10px;">🎉</div>
+            <h2 style="font-family:var(--font-cyber); font-size:1.8rem; color:var(--primary); text-shadow:0 0 20px var(--primary);">LEVEL UP!</h2>
+            <div id="modal-level-title" style="font-family:var(--font-cyber); font-size:1.2rem; color:#fff; margin:8px 0;">CYBER SPECIALIST (LVL 2)</div>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">Neural cognitive capacity upgraded. Reward points earned: +50 $QC!</p>
+            <button class="btn-cyber-primary" id="btn-close-level-modal" style="margin:0 auto;">
+                CLAIM REWARDS & CONTINUE
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
